@@ -63,7 +63,7 @@
 
         <TextView
             android:id="@+id/cancelButton"
-            style="@style/ZdcTextView14sp.White"
+            style="@style/ZdcTextView18sp.White"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/zdc_gallery_button_dimens"
             android:layout_alignStart="@+id/cameraCaptureButton"

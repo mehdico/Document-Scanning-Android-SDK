@@ -37,9 +37,9 @@
             android:id="@+id/magicButton"
             android:layout_width="@dimen/zdc_image_view_icons_dimens"
             android:layout_height="@dimen/zdc_image_view_icons_dimens"
-            android:layout_toEndOf="@+id/closeButton"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/zdc_xxx_big_padding"
+            android:layout_toEndOf="@+id/closeButton"
             android:padding="@dimen/zdc_x_small_padding"
             android:src="@drawable/zdc_magic_wand_icon"
             android:visibility="visible" />

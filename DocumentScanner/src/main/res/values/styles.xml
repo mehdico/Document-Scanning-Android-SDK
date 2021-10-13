@@ -9,7 +9,15 @@
         <item name="android:textSize">@dimen/zdc_text_size_medium_small</item>
     </style>
 
+    <style name="ZdcTextView18sp">
+        <item name="android:textSize">@dimen/zdc_text_size_big</item>
+    </style>
+
     <style name="ZdcTextView14sp.White">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="ZdcTextView18sp.White">
         <item name="android:textColor">@android:color/white</item>
     </style>
 

@@ -28,8 +28,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.rotateBitmap
+import com.zynksoftware.documentscanner.manager.SessionManager
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
+import kotlinx.android.synthetic.main.fragment_camera_screen.*
 import kotlinx.android.synthetic.main.fragment_image_processing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -58,6 +60,10 @@ internal class ImageProcessingFragment : BaseFragment() {
         imagePreview.setImageBitmap(getScanActivity().croppedImage)
 
         initListeners()
+
+        // settings
+        val sessionManager = SessionManager(getScanActivity())
+        magicButton.visibility = if (sessionManager.isMagicButtonEnabled()) View.VISIBLE else View.GONE
     }
 
     private fun initListeners() {

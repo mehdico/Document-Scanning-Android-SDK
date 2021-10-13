@@ -29,6 +29,12 @@ internal class SessionManager(context: Context) {
         private const val IMAGE_SIZE_KEY = "IMAGE_SIZE_KEY"
         private const val IMAGE_QUALITY_KEY = "IMAGE_QUALITY_KEY"
         private const val IMAGE_TYPE_KEY = "IMAGE_TYPE_KEY"
+        private const val IS_GALLERY_ENABLED = "IS_GALLERY_ENABLED"
+        private const val IS_CROPPER_ENABLED = "IS_CROPPER_ENABLED"
+        private const val IS_CAPTURE_MODE_BUTTON_ENABLED = "IS_CAPTURE_MODE_BUTTON_ENABLED"
+        private const val IS_AUTO_CAPTURE_ENABLED_BY_DEFAULT = "IS_AUTO_CAPTURE_ENABLED_BY_DEFAULT"
+        private const val IS_MAGIC_BUTTON_ENABLED = "IS_MAGIC_BUTTON_ENABLED"
+        private const val IS_LIVE_DETECTION_ENABLED = "IS_LIVE_DETECTION_ENABLED"
 
         private const val DEFAULT_IMAGE_TYPE = "jpg"
     }
@@ -63,5 +69,53 @@ internal class SessionManager(context: Context) {
         "png" -> Bitmap.CompressFormat.PNG
         "webp" -> Bitmap.CompressFormat.WEBP
         else -> Bitmap.CompressFormat.JPEG
+    }
+
+    fun isGalleryEnabled(): Boolean {
+        return preferences.getBoolean(IS_GALLERY_ENABLED, true)
+    }
+
+    fun setGalleryEnabled(enabled: Boolean) {
+        preferences.edit().putBoolean(IS_GALLERY_ENABLED, enabled).apply()
+    }
+
+    fun isCropperEnabled(): Boolean {
+        return preferences.getBoolean(IS_CROPPER_ENABLED, true)
+    }
+
+    fun setCropperEnabled(enabled: Boolean) {
+        preferences.edit().putBoolean(IS_CROPPER_ENABLED, enabled).apply()
+    }
+
+    fun isCaptureModeButtonEnabled(): Boolean {
+        return preferences.getBoolean(IS_CAPTURE_MODE_BUTTON_ENABLED, true)
+    }
+
+    fun setCaptureModeButtonEnabled(enabled: Boolean) {
+        preferences.edit().putBoolean(IS_CAPTURE_MODE_BUTTON_ENABLED, enabled).apply()
+    }
+
+    fun isAutoCaptureEnabledByDefault(): Boolean {
+        return preferences.getBoolean(IS_AUTO_CAPTURE_ENABLED_BY_DEFAULT, true)
+    }
+
+    fun setAutoCaptureEnabledByDefault(enabled: Boolean) {
+        preferences.edit().putBoolean(IS_AUTO_CAPTURE_ENABLED_BY_DEFAULT, enabled).apply()
+    }
+
+    fun isLiveDetectionEnabled(): Boolean {
+        return preferences.getBoolean(IS_LIVE_DETECTION_ENABLED, true)
+    }
+
+    fun setLiveDetectionEnabled(enabled: Boolean) {
+        preferences.edit().putBoolean(IS_LIVE_DETECTION_ENABLED, enabled).apply()
+    }
+
+    fun isMagicButtonEnabled(): Boolean {
+        return preferences.getBoolean(IS_MAGIC_BUTTON_ENABLED, true)
+    }
+
+    fun setMagicButtonEnabled(enabled: Boolean) {
+        preferences.edit().putBoolean(IS_MAGIC_BUTTON_ENABLED, enabled).apply()
     }
 }

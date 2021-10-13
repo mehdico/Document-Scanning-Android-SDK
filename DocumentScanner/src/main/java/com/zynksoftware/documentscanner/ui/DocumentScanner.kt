@@ -34,13 +34,25 @@ object DocumentScanner {
         }
         sessionManager.setImageSize(configuration.imageSize)
         sessionManager.setImageType(configuration.imageType)
+        sessionManager.setGalleryEnabled(configuration.isGalleryEnabled);
+        sessionManager.setMagicButtonEnabled(configuration.isMagicButtonEnabled);
+        sessionManager.setCaptureModeButtonEnabled(configuration.isCaptureModeButtonEnabled);
+        sessionManager.setAutoCaptureEnabledByDefault(configuration.isAutoCaptureEnabledByDefault);
+        sessionManager.setLiveDetectionEnabled(configuration.isLiveDetectionEnabled);
+        sessionManager.setCropperEnabled(configuration.isCropperEnabled);
     }
 
 
     data class Configuration(
         var imageQuality: Int = 100,
         var imageSize: Long = -1,
-        var imageType: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
+        var imageType: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
+        var isGalleryEnabled: Boolean = true,
+        var isCropperEnabled: Boolean = true,
+        var isCaptureModeButtonEnabled: Boolean = true,
+        var isAutoCaptureEnabledByDefault: Boolean = true,
+        var isLiveDetectionEnabled: Boolean = true,
+        var isMagicButtonEnabled: Boolean = true,
     ){
     }
 }

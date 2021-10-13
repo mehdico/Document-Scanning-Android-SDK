@@ -5,8 +5,8 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 group="com.zynkware"
 
-def libraryVersionCode = 5
-def libraryVersionName = "1.0.1"
+def libraryVersionCode = 6
+def libraryVersionName = "1.1.0"
 
 repositories {
     mavenCentral()

@@ -77,6 +77,7 @@ internal class ScanSurfaceView : FrameLayout {
     private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var previewSize: android.util.Size
 
+    var isLiveDetectionOn: Boolean = true
     var isAutoCaptureOn: Boolean = true
     private var isFlashEnabled: Boolean = false
     private var flashMode: Int = ImageCapture.FLASH_MODE_OFF
@@ -157,7 +158,7 @@ internal class ScanSurfaceView : FrameLayout {
             .build()
 
         imageAnalysis?.setAnalyzer(ContextCompat.getMainExecutor(context), { image ->
-            if (isAutoCaptureOn) {
+            if (isLiveDetectionOn) {
                 try {
                     val mat = image.yuvToRgba()
                     val originalPreviewSize = mat.size()
@@ -194,11 +195,12 @@ internal class ScanSurfaceView : FrameLayout {
 
         val imgDetectionPropsObj = ImageDetectionProperties(previewWidth.toDouble(), previewHeight.toDouble(),
             points[0], points[1], points[2], points[3], resultWidth.toInt(), resultHeight.toInt())
+
         if (imgDetectionPropsObj.isNotValidImage(approx)) {
             scanCanvasView.clearShape()
             cancelAutoCapture()
         } else {
-            if (!isAutoCaptureScheduled) {
+            if (isAutoCaptureOn && !isAutoCaptureScheduled) {
                 scheduleAutoCapture()
             }
             scanCanvasView.showShape(previewWidth, previewHeight, points)

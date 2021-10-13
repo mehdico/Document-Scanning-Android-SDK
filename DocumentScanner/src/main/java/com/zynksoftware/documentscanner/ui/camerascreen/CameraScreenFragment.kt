@@ -22,7 +22,10 @@ package com.zynksoftware.documentscanner.ui.camerascreen
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -32,10 +35,12 @@ import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.hide
 import com.zynksoftware.documentscanner.common.extensions.show
 import com.zynksoftware.documentscanner.common.utils.FileUriUtils
+import com.zynksoftware.documentscanner.manager.SessionManager
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
 import com.zynksoftware.documentscanner.ui.components.scansurface.ScanSurfaceListener
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
+import id.zelory.compressor.determineImageRotation
 import kotlinx.android.synthetic.main.fragment_camera_screen.*
 import java.io.File
 import java.io.FileNotFoundException
@@ -65,6 +70,13 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
 
         checkForCameraPermissions()
         initListeners()
+
+        // settings
+        val sessionManager = SessionManager(getScanActivity())
+        galleryButton.visibility = if (sessionManager.isGalleryEnabled()) View.VISIBLE else View.GONE
+        autoButton.visibility = if (sessionManager.isCaptureModeButtonEnabled()) View.VISIBLE else View.GONE
+        scanSurfaceView.isAutoCaptureOn = sessionManager.isAutoCaptureEnabledByDefault()
+        scanSurfaceView.isLiveDetectionOn = sessionManager.isLiveDetectionEnabled()
     }
 
     override fun onDestroy() {
@@ -100,6 +112,7 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
 
     private fun toggleAutoManualButton() {
         scanSurfaceView.isAutoCaptureOn = !scanSurfaceView.isAutoCaptureOn
+        scanSurfaceView.isLiveDetectionOn = scanSurfaceView.isAutoCaptureOn
         if (scanSurfaceView.isAutoCaptureOn) {
             autoButton.text = getString(R.string.zdc_auto)
         } else {
@@ -188,7 +201,7 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
                     if (realPath != null) {
                         getScanActivity().reInitOriginalImageFile()
                         getScanActivity().originalImageFile = File(realPath)
-                        startCroppingProcess()
+                        gotoNext()
                     } else {
                         Log.e(TAG, DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR.error)
                         onError(DocumentScannerErrorModel(
@@ -208,12 +221,26 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
     }
 
     override fun scanSurfacePictureTaken() {
-        startCroppingProcess()
+        gotoNext()
     }
 
-    private fun startCroppingProcess() {
+    private fun gotoNext() {
         if (isAdded) {
-            getScanActivity().showImageCropFragment()
+            if (SessionManager(getScanActivity()).isCropperEnabled()) {
+                getScanActivity().showImageCropFragment()
+            } else {
+                val sourceBitmap = BitmapFactory.decodeFile(getScanActivity().originalImageFile.absolutePath)
+                if (sourceBitmap != null) {
+                    getScanActivity().croppedImage = determineImageRotation(getScanActivity().originalImageFile, sourceBitmap)
+                    getScanActivity().showImageProcessingFragment()
+                } else {
+                    Log.e(TAG, DocumentScannerErrorModel.ErrorMessage.INVALID_IMAGE.error)
+                    onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.INVALID_IMAGE))
+                    Handler(Looper.getMainLooper()).post{
+                        finishActivity()
+                    }
+                }
+            }
         }
     }
 
