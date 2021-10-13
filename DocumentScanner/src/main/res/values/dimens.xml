@@ -12,6 +12,7 @@
     <dimen name="zdc_next_arrow_padding">80dp</dimen>
     <dimen name="zdc_xxx_big_padding">40dp</dimen>
     <dimen name="zdc_medium_padding">20dp</dimen>
+    <dimen name="zdc_gallery_padding">30dp</dimen>
     <dimen name="zdc_small_padding">12dp</dimen>
     <dimen name="zdc_x_small_padding">10dp</dimen>
     <dimen name="zdc_xx_small_padding">8dp</dimen>
@@ -28,7 +29,8 @@
     <dimen name="zdc_camera_stroke_width">4dp</dimen>
     <dimen name="zdc_point_padding">20dp</dimen>
     <dimen name="zdc_camera_button_dimens">50dp</dimen>
-    <dimen name="zdc_gallery_button_dimens">60dp</dimen>
+    <dimen name="zdc_gallery_button_dimens">40dp</dimen>
+    <dimen name="zdc_cancel_button_dimens">50dp</dimen>
     <dimen name="zdc_negative_padding_camera">-20dp</dimen>
 
 </resources>
