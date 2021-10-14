@@ -117,7 +117,6 @@ abstract class InternalScanActivity : AppCompatActivity() {
     }
 
     internal fun finalScannerResult() {
-        findViewById<FrameLayout>(R.id.zdcContent).hide()
         compressFiles()
     }
 
@@ -161,6 +160,7 @@ abstract class InternalScanActivity : AppCompatActivity() {
 
             val scannerResults = ScannerResults(originalImageFile, croppedImageFile, transformedImageFile)
             runOnUiThread {
+                findViewById<FrameLayout>(R.id.zdcContent).hide()
                 findViewById<ProgressView>(R.id.zdcProgressView).hide()
                 shouldCallOnClose = false
                 supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
