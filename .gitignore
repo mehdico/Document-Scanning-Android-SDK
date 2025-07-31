@@ -87,3 +87,6 @@ lint/tmp/
 
 # Android Profiling
 *.hprof
+DocumentScanner/.DS_Store
+.idea
+.DS_Store

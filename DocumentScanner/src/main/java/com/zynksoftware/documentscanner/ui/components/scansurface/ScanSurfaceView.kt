@@ -25,7 +25,6 @@ import android.os.CountDownTimer
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Surface
 import android.widget.FrameLayout
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -101,7 +100,7 @@ internal class ScanSurfaceView : FrameLayout {
     private fun openCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
-        cameraProviderFuture.addListener(Runnable {
+        cameraProviderFuture.addListener({
             cameraProvider = cameraProviderFuture.get()
 
             try {
@@ -127,7 +126,6 @@ internal class ScanSurfaceView : FrameLayout {
 
         imageCapture = null
         imageCapture = ImageCapture.Builder()
-            .setTargetRotation(Surface.ROTATION_0)
             .setFlashMode(flashMode)
             .build()
     }
@@ -139,7 +137,6 @@ internal class ScanSurfaceView : FrameLayout {
     private fun setUseCases() {
         preview = Preview.Builder()
             .setTargetResolution(previewSize)
-            .setTargetRotation(Surface.ROTATION_0)
             .build()
             .also {
                 it.setSurfaceProvider(viewFinder.surfaceProvider)
@@ -154,11 +151,10 @@ internal class ScanSurfaceView : FrameLayout {
         imageAnalysis = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .setTargetResolution(android.util.Size(width, height))
-            .setTargetRotation(Surface.ROTATION_0)
             .build()
 
-        imageAnalysis?.setAnalyzer(ContextCompat.getMainExecutor(context), { image ->
-            if (isLiveDetectionOn) {
+        imageAnalysis?.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
+            if (isAutoCaptureOn) {
                 try {
                     val mat = image.yuvToRgba()
                     val originalPreviewSize = mat.size()
@@ -178,7 +174,7 @@ internal class ScanSurfaceView : FrameLayout {
                 clearAndInvalidateCanvas()
             }
             image.close()
-        })
+        }
 
         camera = cameraProvider!!.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalysis, imageCapture)
     }

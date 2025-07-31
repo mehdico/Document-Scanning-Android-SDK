@@ -23,6 +23,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -30,18 +31,21 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.tbruyelle.rxpermissions3.RxPermissions
+import com.fondesa.kpermissions.allGranted
+import com.fondesa.kpermissions.allShouldShowRationale
+import com.fondesa.kpermissions.extension.permissionsBuilder
+import com.fondesa.kpermissions.extension.send
 import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.hide
 import com.zynksoftware.documentscanner.common.extensions.show
 import com.zynksoftware.documentscanner.common.utils.FileUriUtils
+import com.zynksoftware.documentscanner.databinding.FragmentCameraScreenBinding
 import com.zynksoftware.documentscanner.manager.SessionManager
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
 import com.zynksoftware.documentscanner.ui.components.scansurface.ScanSurfaceListener
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
 import id.zelory.compressor.determineImageRotation
-import kotlinx.android.synthetic.main.fragment_camera_screen.*
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -57,26 +61,30 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
         }
     }
 
+    private var _binding: FragmentCameraScreenBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_camera_screen, container, false)
+        _binding = FragmentCameraScreenBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        scanSurfaceView.lifecycleOwner = this
-        scanSurfaceView.listener = this
-        scanSurfaceView.originalImageFile = getScanActivity().originalImageFile
+        binding.scanSurfaceView.lifecycleOwner = this
+        binding.scanSurfaceView.listener = this
+        binding.scanSurfaceView.originalImageFile = getScanActivity().originalImageFile
 
         checkForCameraPermissions()
         initListeners()
 
         // settings
         val sessionManager = SessionManager(getScanActivity())
-        galleryButton.visibility = if (sessionManager.isGalleryEnabled()) View.VISIBLE else View.GONE
-        autoButton.visibility = if (sessionManager.isCaptureModeButtonEnabled()) View.VISIBLE else View.GONE
-        scanSurfaceView.isAutoCaptureOn = sessionManager.isAutoCaptureEnabledByDefault()
-        scanSurfaceView.isLiveDetectionOn = sessionManager.isLiveDetectionEnabled()
+        binding.galleryButton.visibility = if (sessionManager.isGalleryEnabled()) View.VISIBLE else View.GONE
+        binding.autoButton.visibility = if (sessionManager.isCaptureModeButtonEnabled()) View.VISIBLE else View.GONE
+        binding.scanSurfaceView.isAutoCaptureOn = sessionManager.isAutoCaptureEnabledByDefault()
+        binding.scanSurfaceView.isLiveDetectionOn = sessionManager.isLiveDetectionEnabled()
     }
 
     override fun onDestroy() {
@@ -89,79 +97,79 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
     override fun onResume() {
         super.onResume()
         getScanActivity().reInitOriginalImageFile()
-        scanSurfaceView.originalImageFile = getScanActivity().originalImageFile
+        binding.scanSurfaceView.originalImageFile = getScanActivity().originalImageFile
     }
 
     private fun initListeners() {
-        cameraCaptureButton.setOnClickListener {
+        binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
         }
-        cancelButton.setOnClickListener {
+        binding.cancelButton.setOnClickListener {
             finishActivity()
         }
-        flashButton.setOnClickListener {
+        binding.flashButton.setOnClickListener {
             switchFlashState()
         }
-        galleryButton.setOnClickListener {
+        binding.galleryButton.setOnClickListener {
             checkForStoragePermissions()
         }
-        autoButton.setOnClickListener {
+        binding.autoButton.setOnClickListener {
             toggleAutoManualButton()
         }
     }
 
     private fun toggleAutoManualButton() {
-        scanSurfaceView.isAutoCaptureOn = !scanSurfaceView.isAutoCaptureOn
-        scanSurfaceView.isLiveDetectionOn = scanSurfaceView.isAutoCaptureOn
-        if (scanSurfaceView.isAutoCaptureOn) {
-            autoButton.text = getString(R.string.zdc_auto)
+        binding.scanSurfaceView.isAutoCaptureOn = !binding.scanSurfaceView.isAutoCaptureOn
+        binding.scanSurfaceView.isLiveDetectionOn = binding.scanSurfaceView.isAutoCaptureOn
+        if (binding.scanSurfaceView.isAutoCaptureOn) {
+            binding.autoButton.text = getString(R.string.zdc_auto)
         } else {
-            autoButton.text = getString(R.string.zdc_manual)
+            binding.autoButton.text = getString(R.string.zdc_manual)
         }
     }
 
     private fun checkForCameraPermissions() {
-        RxPermissions(this)
-            .requestEach(Manifest.permission.CAMERA)
-            .subscribe { permission ->
-                when {
-                    permission.granted -> {
-                        startCamera()
-                    }
-                    permission.shouldShowRequestPermissionRationale -> {
-                        onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.CAMERA_PERMISSION_REFUSED_WITHOUT_NEVER_ASK_AGAIN))
-                    }
-                    else -> {
-                        onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.CAMERA_PERMISSION_REFUSED_GO_TO_SETTINGS))
-                    }
+        permissionsBuilder(Manifest.permission.CAMERA)
+            .build()
+            .send { result ->
+                if (result.allGranted()) {
+                    startCamera()
+                } else if(result.allShouldShowRationale()) {
+                    onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.CAMERA_PERMISSION_REFUSED_WITHOUT_NEVER_ASK_AGAIN))
+                } else {
+                    onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.CAMERA_PERMISSION_REFUSED_GO_TO_SETTINGS))
                 }
             }
     }
 
     private fun checkForStoragePermissions() {
-        RxPermissions(this)
-            .requestEach(Manifest.permission.READ_EXTERNAL_STORAGE)
-            .subscribe { permission ->
-                when {
-                    permission.granted -> {
-                        selectImageFromGallery()
-                    }
-                    permission.shouldShowRequestPermissionRationale -> {
-                        onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_WITHOUT_NEVER_ASK_AGAIN))
-                    }
-                    else -> {
-                        onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_GO_TO_SETTINGS))
-                    }
+        permissionsBuilder(getStoragePermission())
+            .build()
+            .send { result ->
+                if (result.allGranted()) {
+                    selectImageFromGallery()
+                } else if (result.allShouldShowRationale()) {
+                    onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_WITHOUT_NEVER_ASK_AGAIN))
+                } else {
+                    onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_GO_TO_SETTINGS))
                 }
             }
     }
 
+    private fun getStoragePermission(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+    }
+
     private fun startCamera() {
-        scanSurfaceView.start()
+        binding.scanSurfaceView.start()
     }
 
     private fun takePhoto() {
-        scanSurfaceView.takePicture()
+        binding.scanSurfaceView.takePicture()
     }
 
     private fun getScanActivity(): InternalScanActivity {
@@ -173,15 +181,15 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
     }
 
     private fun switchFlashState() {
-        scanSurfaceView.switchFlashState()
+        binding.scanSurfaceView.switchFlashState()
     }
 
     override fun showFlash() {
-        flashButton?.show()
+        binding.flashButton?.show()
     }
 
     override fun hideFlash() {
-        flashButton?.hide()
+        binding.flashButton?.hide()
     }
 
     private fun selectImageFromGallery() {
@@ -259,10 +267,10 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
     }
 
     override fun showFlashModeOn() {
-        flashButton.setImageResource(R.drawable.zdc_flash_on)
+        binding.flashButton.setImageResource(R.drawable.zdc_flash_on)
     }
 
     override fun showFlashModeOff() {
-        flashButton.setImageResource(R.drawable.zdc_flash_off)
+        binding.flashButton.setImageResource(R.drawable.zdc_flash_off)
     }
 }
