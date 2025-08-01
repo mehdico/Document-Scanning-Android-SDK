@@ -26,13 +26,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.rotateBitmap
 import com.zynksoftware.documentscanner.manager.SessionManager
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
-import kotlinx.android.synthetic.main.fragment_camera_screen.*
-import kotlinx.android.synthetic.main.fragment_image_processing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -50,12 +49,24 @@ internal class ImageProcessingFragment : BaseFragment() {
 
     private var isInverted = false
 
+    private lateinit var imagePreview: ImageView
+    private lateinit var magicButton: ImageView
+    private lateinit var closeButton: ImageView
+    private lateinit var confirmButton: ImageView
+    private lateinit var rotateButton: ImageView
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_image_processing, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        imagePreview = view.findViewById(R.id.imagePreview)
+        magicButton = view.findViewById(R.id.magicButton)
+        closeButton = view.findViewById(R.id.closeButton)
+        confirmButton = view.findViewById(R.id.confirmButton)
+        rotateButton = view.findViewById(R.id.rotateButton)
 
         imagePreview.setImageBitmap(getScanActivity().croppedImage)
 

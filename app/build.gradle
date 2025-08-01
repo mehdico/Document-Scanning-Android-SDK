@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 36
@@ -8,7 +7,7 @@ android {
     defaultConfig {
         namespace 'com.zynksoftware.documentscannersample'
         applicationId "com.zynksoftware.documentscannersample"
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion 36
         versionCode 7
         versionName "1.1.0"

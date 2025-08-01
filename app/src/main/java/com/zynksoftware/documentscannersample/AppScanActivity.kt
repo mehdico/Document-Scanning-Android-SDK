@@ -12,6 +12,8 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DCIM
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
+import android.widget.ImageView
 import androidx.core.view.isVisible
 import com.fondesa.kpermissions.allGranted
 import com.fondesa.kpermissions.allShouldShowRationale
@@ -22,7 +24,6 @@ import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.model.ScannerResults
 import com.zynksoftware.documentscannersample.adapters.ImageAdapter
 import com.zynksoftware.documentscannersample.adapters.ImageAdapterListener
-import kotlinx.android.synthetic.main.app_scan_activity_layout.*
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,9 +43,19 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
     private var alertDialogBuilder: android.app.AlertDialog.Builder? = null
     private var alertDialog: android.app.AlertDialog? = null
 
+    private lateinit var progressLayoutApp: View
+    private lateinit var viewPagerTwo: androidx.viewpager2.widget.ViewPager2
+    private lateinit var previousButton: ImageView
+    private lateinit var nextButton: ImageView
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.app_scan_activity_layout)
+        progressLayoutApp = findViewById(R.id.progressLayoutApp)
+        viewPagerTwo = findViewById(R.id.viewPagerTwo)
+        previousButton = findViewById(R.id.previousButton)
+        nextButton = findViewById(R.id.nextButton)
         addFragmentContentLayout()
     }
 

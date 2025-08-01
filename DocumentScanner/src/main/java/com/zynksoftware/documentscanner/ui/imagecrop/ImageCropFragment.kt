@@ -33,14 +33,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.scaledBitmap
 import com.zynksoftware.documentscanner.common.utils.OpenCvNativeBridge
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
+import com.zynksoftware.documentscanner.ui.components.polygon.PolygonView
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
 import id.zelory.compressor.determineImageRotation
-import kotlinx.android.synthetic.main.fragment_image_crop.*
 
 internal class ImageCropFragment : BaseFragment() {
 
@@ -56,12 +57,26 @@ internal class ImageCropFragment : BaseFragment() {
 
     private var selectedImage: Bitmap? = null
 
+    private lateinit var holderImageView: FrameLayout
+    private lateinit var closeButton: ImageView
+    private lateinit var confirmButton: ImageView
+    private lateinit var holderImageCrop: FrameLayout
+    private lateinit var imagePreview: ImageView
+    private lateinit var polygonView: PolygonView
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_image_crop, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        holderImageView = view.findViewById(R.id.holderImageView)
+        closeButton = view.findViewById(R.id.closeButton)
+        confirmButton = view.findViewById(R.id.confirmButton)
+        holderImageCrop = view.findViewById(R.id.holderImageCrop)
+        imagePreview = view.findViewById(R.id.imagePreview)
+        polygonView = view.findViewById(R.id.polygonView)
 
         val sourceBitmap = BitmapFactory.decodeFile(getScanActivity().originalImageFile.absolutePath)
         if (sourceBitmap != null) {

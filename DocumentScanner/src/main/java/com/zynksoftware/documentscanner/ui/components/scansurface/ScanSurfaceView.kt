@@ -36,7 +36,6 @@ import com.zynksoftware.documentscanner.common.utils.ImageDetectionProperties
 import com.zynksoftware.documentscanner.common.utils.OpenCvNativeBridge
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel.ErrorMessage
-import kotlinx.android.synthetic.main.scan_surface_view.view.*
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
@@ -84,6 +83,12 @@ internal class ScanSurfaceView : FrameLayout {
     init {
         LayoutInflater.from(context).inflate(R.layout.scan_surface_view, this, true)
     }
+
+    private val viewFinder: androidx.camera.view.PreviewView
+        get() = findViewById(R.id.viewFinder)
+
+    private val scanCanvasView: com.zynksoftware.documentscanner.ui.components.ScanCanvasView
+        get() = findViewById(R.id.scanCanvasView)
 
     fun start() {
         viewFinder.post {
