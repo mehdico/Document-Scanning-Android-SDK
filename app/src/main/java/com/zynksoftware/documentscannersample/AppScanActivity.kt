@@ -12,14 +12,18 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DCIM
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
+import android.widget.ImageView
 import androidx.core.view.isVisible
-import com.tbruyelle.rxpermissions3.RxPermissions
+import com.fondesa.kpermissions.allGranted
+import com.fondesa.kpermissions.allShouldShowRationale
+import com.fondesa.kpermissions.extension.permissionsBuilder
+import com.fondesa.kpermissions.extension.send
 import com.zynksoftware.documentscanner.ScanActivity
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.model.ScannerResults
 import com.zynksoftware.documentscannersample.adapters.ImageAdapter
 import com.zynksoftware.documentscannersample.adapters.ImageAdapterListener
-import kotlinx.android.synthetic.main.app_scan_activity_layout.*
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,9 +43,19 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
     private var alertDialogBuilder: android.app.AlertDialog.Builder? = null
     private var alertDialog: android.app.AlertDialog? = null
 
+    private lateinit var progressLayoutApp: View
+    private lateinit var viewPagerTwo: androidx.viewpager2.widget.ViewPager2
+    private lateinit var previousButton: ImageView
+    private lateinit var nextButton: ImageView
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.app_scan_activity_layout)
+        progressLayoutApp = findViewById(R.id.progressLayoutApp)
+        viewPagerTwo = findViewById(R.id.viewPagerTwo)
+        previousButton = findViewById(R.id.previousButton)
+        nextButton = findViewById(R.id.nextButton)
         addFragmentContentLayout()
     }
 
@@ -63,21 +77,37 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
     }
 
     private fun checkForStoragePermissions(image: File) {
-        RxPermissions(this)
-            .requestEach(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
-            .subscribe { permission ->
-                when {
-                    permission.granted -> {
-                        saveImage(image)
-                    }
-                    permission.shouldShowRequestPermissionRationale -> {
-                        onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_WITHOUT_NEVER_ASK_AGAIN))
-                    }
-                    else -> {
-                        onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_GO_TO_SETTINGS))
-                    }
+        permissionsBuilder(getWriteStoragePermission(), getReadStoragePermission())
+            .build()
+            .send { result ->
+                if (result.allGranted()) {
+                    saveImage(image)
+                } else if(result.allShouldShowRationale()) {
+                    onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_WITHOUT_NEVER_ASK_AGAIN))
+                } else {
+                    onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_GO_TO_SETTINGS))
                 }
             }
+    }
+
+    private fun getWriteStoragePermission(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Manifest.permission.ACCESS_MEDIA_LOCATION
+        } else {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        }
+    }
+
+    private fun getReadStoragePermission(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Manifest.permission.ACCESS_MEDIA_LOCATION
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+        }
     }
 
     private fun saveImage(image: File) {

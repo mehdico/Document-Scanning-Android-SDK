@@ -65,7 +65,7 @@ internal class SessionManager(context: Context) {
         preferences.edit().putString(IMAGE_TYPE_KEY, type.extension()).apply()
     }
 
-    private fun compressFormat(format: String) = when (format.toLowerCase()) {
+    private fun compressFormat(format: String) = when (format.lowercase()) {
         "png" -> Bitmap.CompressFormat.PNG
         "webp" -> Bitmap.CompressFormat.WEBP
         else -> Bitmap.CompressFormat.JPEG
